@@ -75,7 +75,7 @@ const Today = () => {
         />
         <div className={styles.today__transactions}>
           <h1 className={styles.title}>Transactions</h1>
-          <Transactions />
+          <Transactions className={styles.transactions} />
         </div>
         <AddTransaction
         />

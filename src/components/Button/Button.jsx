@@ -5,6 +5,7 @@ import styles from './Button.module.sass';
 export const TYPES = {
   MAIN: styles.main,
   DANGER: styles.danger,
+  MUTED: styles.muted
 };
 
 export const SIZES = {

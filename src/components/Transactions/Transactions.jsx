@@ -21,7 +21,7 @@ import {
 import styles from './Transactions.module.sass';
 import Button, { TYPES } from '../Button';
 
-const Transactions = ({ showedTrans }) => {
+const Transactions = ({ showedTrans, className }) => {
 
   const transaction = [];
 
@@ -245,7 +245,7 @@ const Transactions = ({ showedTrans }) => {
   });
 
   return (
-    <div className={styles.transactions}>
+    <div className={classNames(styles.transactions, className)}>
       {
         renderedTransactions.length > 0
           ? renderedTransactions

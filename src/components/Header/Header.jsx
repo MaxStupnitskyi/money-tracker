@@ -5,6 +5,8 @@ import { activeStartDate, activeEndDate } from '../../store/store';
 import styles from './Header.module.sass';
 import { useSetRecoilState } from 'recoil';
 
+const offset = new Date().getTimezoneOffset();
+
 const Header = () => {
 
   const setStartDate = useSetRecoilState(activeStartDate);
@@ -12,7 +14,7 @@ const Header = () => {
 
   const setCurrentMonth = () => {
     const date = new Date();
-    const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+    const firstDay = new Date(date.getFullYear(), date.getMonth(), 1) - offset * 1000 * 60;
     const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).setHours(23, 59, 59, 999);
     setStartDate(new Date(firstDay).toISOString());
     setEndDate(new Date(lastDay).toISOString());

@@ -1,5 +1,4 @@
 import React from 'react';
-import classNames from 'classnames';
 
 import Button, { TYPES } from '../../Button';
 import Modal from '../../Modal';
@@ -9,7 +8,7 @@ import styles from './DeleteAccountModal.module.sass';
 const DeleteAccountModal = ({ onOverlayClick, onAccountDelete, onCancelAccountDelete }) => {
   return (
     <Modal onOverlayClick={onOverlayClick}>
-      <div className={styles.deleteAccount}>
+      <div>
         <h3 className={styles.modal__title}>
           Are you sure you want to delete account? All account transactions will be deleted
           too
@@ -25,6 +24,7 @@ const DeleteAccountModal = ({ onOverlayClick, onAccountDelete, onCancelAccountDe
           <Button
             className={styles.button}
             onClick={onCancelAccountDelete}
+            type={TYPES.MUTED}
           >
             Cancel
           </Button>

@@ -7,6 +7,7 @@
 .budget
 
 	.addButton
+		height: 52px
 		background-color: transparent
 
 	&__content
@@ -100,6 +101,12 @@
 
 .container
 	+container
+
+.transactions
+	overflow-y: auto
+	padding-right: 10px
+	height: calc(100vh - 45px - 40px - 44px - 35px - 30px)
+// header, header margin bottom, dates, edit button, padding bottom
 
 @keyframes shaking
 	0%

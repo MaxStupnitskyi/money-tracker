@@ -4,9 +4,10 @@ import { RecoilRoot } from "recoil";
 import Header from '../Header';
 import Today from '../Today';
 import Balance from '../Balance';
+import Budget from '../Budget';
+import Report from '../Report';
 
 import styles from './App.module.sass';
-import Budget from '../Budget';
 
 const App = () => {
   return (
@@ -25,8 +26,8 @@ const App = () => {
               <Budget />
             </Route>
             <Route path="/report">
+              <Report />
             </Route>
-
           </Switch>
         </div>
       </Router>

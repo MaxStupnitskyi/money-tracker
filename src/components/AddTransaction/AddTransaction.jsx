@@ -158,7 +158,7 @@ const AddTransaction = () => {
           </Button>
         </form>
       ) : (
-        <div>Please, create new account</div>
+        <h4 className={styles.subtitle}>Please, create new account</h4>
       )}
     </div>
   );

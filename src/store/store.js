@@ -101,3 +101,8 @@ export const categoryDelete = atom({
   key: 'categoryDelete',
   default: false
 });
+
+export const addNewCategory = atom({
+  key: 'addNewCategory',
+  default: false
+});

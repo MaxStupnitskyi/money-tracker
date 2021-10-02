@@ -1,4 +1,4 @@
-import { ReactComponent as ArrowDown } from '../../../public/img/angle-arrow-down.svg';
+import { ReactComponent as ArrowDown } from '../../../public/img/angle.svg';
 
 import styles from "../AddTransaction.module.sass";
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 
 import {
   accounts as stateAccounts,
@@ -11,7 +11,6 @@ import {
 } from "../../store/store";
 
 import Transactions from '../Transactions';
-import Portal from '../Portal';
 
 import styles from './Balance.module.sass';
 
@@ -50,7 +49,7 @@ const Balance = () => {
     const newTransactions = transactions.slice(0).filter(t => t.account !== id);
 
     setAccounts([...accounts.slice(0, deleted), ...accounts.slice(deleted + 1)]);
-    setTransactions([newTransactions]);
+    setTransactions(newTransactions);
   };
 
   const onAccountAdded = async () => {
@@ -70,8 +69,11 @@ const Balance = () => {
 
   useEffect(() => {
     localStorage.setItem('accounts', JSON.stringify(accounts));
-
   }, [accounts]);
+  useEffect(() => {
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+  }, [transactions]);
+
 
   const renderedAccounts = accounts.map(acc => {
     return (
@@ -109,7 +111,8 @@ const Balance = () => {
       <div className={styles.balance}>
         <div className={styles.balance__accounts}>
           <h1 className={styles.title}>Accounts</h1>
-          {renderedAccounts}
+          {renderedAccounts.length > 0 ? renderedAccounts :
+            <h4 className={styles.subtitle}>You don't have any accounts yet. <br /> Please, create new account</h4>}
           <Button
             size={SIZES.SM}
             className={styles.button}
@@ -119,7 +122,7 @@ const Balance = () => {
           </Button>
           {showEdit && (
             <form className={styles.addAccount}>
-              <label className={styles.addAccount__title}>Create new Account</label>
+              <label>Create new Account</label>
               <input
                 type="text"
                 placeholder="Title"
@@ -128,7 +131,7 @@ const Balance = () => {
                 value={accountTitle}
                 onChange={e => setAccountTitle(e.target.value)}
               />
-              <div className={classNames(showError ? '' : styles.hidden, styles.errorMsg)}>
+              <div className={classNames(styles.errorMsg, { [styles.hidden]: !showError })}>
                 Please, use unique name for account
               </div>
               <input
@@ -160,7 +163,7 @@ const Balance = () => {
               onChange={e => setActiveEndDate(new Date(e.target.value).toISOString())}
             />
           </div>
-          <Transactions />
+          <Transactions className={styles.transactions} />
         </div>
         {shouldDeleteAccount && (
           <DeleteAccountModal

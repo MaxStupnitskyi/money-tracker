@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Calendar from 'react-calendar';
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import classNames from 'classnames';
 
 import {
@@ -9,12 +9,12 @@ import {
   categories as stateCategories,
   transactions as stateTransactions,
   deletedCategory as stateDeletedCategory,
-  moveTransactionsTo as stateMoveTransactionsTo,
+  addNewCategory as stateAddNewCategory,
   categoryDelete as stateCategoryDelete
 } from "../../store/store";
 
 import Transactions from '../Transactions';
-import Button from '../Button';
+import Button, { SIZES } from '../Button';
 import DeleteCategoryModal from './DeleteCategoryModal/DeleteCategoryModal';
 import AddCategoryModal from './AddCategoryModal';
 
@@ -22,23 +22,19 @@ import styles from './Budget.module.sass';
 import './Calendar.sass';
 
 const Budget = () => {
-  const [categories, setCategories] = useRecoilState(stateCategories);
-  const [transactions, setTransactions] = useRecoilState(stateTransactions);
+  const categories = useRecoilValue(stateCategories);
+  const transactions = useRecoilValue(stateTransactions);
   const [activeStartDate, setActiveStartDate] = useRecoilState(startDate);
   const [activeEndDate, setActiveEndDate] = useRecoilState(endDate);
-  const [deletedCategory, setDeletedCategory] = useRecoilState(stateDeletedCategory);
-  const [moveTransactionsTo, setMoveTransactionsTo] = useRecoilState(stateMoveTransactionsTo);
+  const setDeletedCategory = useSetRecoilState(stateDeletedCategory);
   const [categoryDelete, setCategoryDelete] = useRecoilState(stateCategoryDelete);
 
   const [activeCategory, setActiveCategory] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
   const [showedTransactions, setShowedTransactions] = useState([]);
 
-  const [addNewCategory, setAddNewCategory] = useState(false);
+  const [addNewCategory, setAddNewCategory] = useRecoilState(stateAddNewCategory);
   const [newCategoryType, setNewCategoryType] = useState(null);
-  const [addCategoryValue, setAddCategoryValue] = useState('');
-
-  const [showError, setShowError] = useState(false)
 
   const showTransactions = (catTransactions) => {
     setShowedTransactions(catTransactions);
@@ -49,81 +45,10 @@ const Budget = () => {
     setNewCategoryType(type);
   };
 
-  const addCategory = async (e) => {
-    e.preventDefault();
-    const category = await categories[`${newCategoryType}s`].find(
-      cat => cat === addCategoryValue
-    );
-    // this.setState({ showError: category ? '' : 'hidden' });
-
-    // if (this.state.showError !== '') {
-    //   this.setState(state => {
-    //     let categories = state.categories;
-    //     if (state.newCategoryType === 'income') {
-    //       categories = {
-    //         expences: state.categories.expences,
-    //         incomes: [...state.categories.incomes, state.addCategoryValue],
-    //       };
-    //     }
-    //     if (state.newCategoryType === 'expence') {
-    //       categories = {
-    //         expences: [...state.categories.expences, state.addCategoryValue],
-    //         incomes: state.categories.incomes,
-    //       };
-    //     }
-    //
-    //     localStorage.setItem('categories', JSON.stringify(categories));
-    //
-    //     return {
-    //       categories: categories,
-    //       addNewCategory: false,
-    //       newCategoryType: null,
-    //       addCategoryValue: '',
-    //     };
-    //   });
-    // }
-  };
-
   const onCategoryDeleted = (type, cat, total) => {
     console.log(type, cat, total);
     setDeletedCategory([type, cat, total]);
     setCategoryDelete(true);
-  };
-
-  const deleteCategory = (e, [type, cat], to) => {
-    e.preventDefault();
-    console.log(type, cat, to);
-    const deleted = categories[type].findIndex(i => i === cat);
-
-    const trans = transactions;
-    const transChanged = trans
-    .filter(t => t.cat === cat)
-    .map(t => {
-      return { ...t, cat: to };
-    });
-    const transOld = trans.filter(t => {
-      return t.cat !== cat;
-    });
-    const newTrans = [...transChanged, ...transOld];
-
-    setCategories(type === 'expenses'
-      ? {
-        expenses: [
-          ...categories.expenses.slice(0, deleted),
-          ...categories.expenses.slice(deleted + 1),
-        ],
-        incomes: categories.incomes
-      }
-      : {
-        expenses: categories.expenses,
-        incomes: [
-          ...categories.incomes.slice(0, deleted),
-          ...categories.incomes.slice(deleted + 1),
-        ]
-      }
-    );
-    setTransactions(newTrans);
-    setCategoryDelete(false);
   };
 
   useEffect(() => {
@@ -148,9 +73,15 @@ const Budget = () => {
           ? catTransactions.reduce((sum, t) => sum + Math.abs(t.price), 0)
           : 0;
       const button = (
-        <div className={styles.category__wrap} key={cat} total={total}>
+        <div className={styles.category__wrap} key={cat} data-total={total}>
           <button
-            className={classNames(styles.category, activeCategory === cat && styles.active, showEdit && styles.editable)}
+            className={classNames(
+              styles.category,
+              {
+                [styles.active]: activeCategory === cat,
+                [styles.editable]: showEdit
+              }
+            )}
             onClick={() => {
               if (activeCategory !== cat) {
                 showTransactions(catTransactions);
@@ -163,7 +94,7 @@ const Budget = () => {
             }}
           >
             <div className={styles.category__title}>{cat}</div>
-            <div className={styles.category__total}>
+            <div>
               {String(total).includes('.') ? total.toFixed(2) : total}
             </div>
           </button>
@@ -180,8 +111,8 @@ const Budget = () => {
       return showEdit ? button : catTransactions.length > 0 && button;
     })
     .filter(i => i !== false)
-    .sort((a, b) => b.props.total - a.props.total);
-    const monthTotal = html.reduce((sum, i) => sum + i.props.total, 0).toFixed(2);
+    .sort((a, b) => b.props['data-total'] - a.props['data-total']);
+    const monthTotal = html.reduce((sum, i) => sum + i.props['data-total'], 0).toFixed(2);
     return { html, monthTotal };
   };
 
@@ -207,19 +138,22 @@ const Budget = () => {
             onActiveStartDateChange={({ activeStartDate }) => changeMonth(activeStartDate)}
           />
         </div>
-        <button className={classNames(styles.button, styles.edit)} onClick={() => toggleCategories()}>
+        <Button
+          className={styles.button}
+          size={SIZES.SM}
+          onClick={() => toggleCategories()}
+        >
           {showEdit ? 'Done' : 'Edit'}
-        </button>
+        </Button>
         <div className={styles.budget__content}>
           <div
-            className={styles.budget__categories}
             style={
               showedTransactions.length > 0
                 ? { flexBasis: '60%' }
                 : { flexBasis: '100%' }
             }
           >
-            <div className={classNames(styles.budget__category, styles.expenses)}>
+            <div className={styles.budget__category}>
               <div className={styles.budget__category__header}>
                 <h1 className={styles.title}>expenses</h1>
                 <div className={styles.total}>{expenses.monthTotal}</div>
@@ -236,7 +170,7 @@ const Budget = () => {
                 )}
               </div>
             </div>
-            <div className={classNames(styles.budget__category, styles.incomes)}>
+            <div className={styles.budget__category}>
               <div className={styles.budget__category__header}>
                 <h1 className={styles.title}>Incomes</h1>
                 <div className={styles.total}>{incomes.monthTotal}</div>
@@ -259,25 +193,18 @@ const Budget = () => {
             </div>
           </div>
           <div
-            className={styles.budget__transactions}
             style={
               showedTransactions.length > 0
                 ? { flexBasis: '40%', display: 'block' }
                 : { display: 'none' }
             }
           >
-            <Transactions showedTrans={showedTransactions} />
+            <Transactions className={styles.transactions} showedTrans={showedTransactions} />
           </div>
         </div>
       </div>
-      {
-        categoryDelete && (
-          <DeleteCategoryModal deleteCategory={deleteCategory} />
-        )
-      }
-      {addNewCategory && (
-        <AddCategoryModal addCategory={addCategory} showError={showError} />
-      )}
+      {categoryDelete && <DeleteCategoryModal />}
+      {addNewCategory && <AddCategoryModal setCategoryAdd={setAddNewCategory} newCategoryType={newCategoryType} />}
     </div>
   );
 };

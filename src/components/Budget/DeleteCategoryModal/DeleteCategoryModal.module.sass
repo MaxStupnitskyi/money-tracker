@@ -1,9 +1,21 @@
 @import "../../../styles/helpers"
 
-.modal
-	+modal
+.select
+	position: relative
+
+	select
+		width: 100%
+
+.arrow
+	position: absolute
+	right: 9px
+	top: 50%
+	transform: translateY(-50%)
+	width: 10px
+	height: 14px
 
 .modal
+	+modal
 
 	&__form
 		display: flex
