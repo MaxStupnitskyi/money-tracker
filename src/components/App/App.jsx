@@ -12,7 +12,7 @@ import styles from './App.module.sass';
 const App = () => {
   return (
     <RecoilRoot>
-      <Router basename={'money-react'}>
+      <Router basename={'money-tracker'}>
         <div className={styles.app}>
           <Header />
           <Switch>
